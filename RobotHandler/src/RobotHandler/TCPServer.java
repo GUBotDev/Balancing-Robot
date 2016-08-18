@@ -25,6 +25,9 @@ public class TCPServer {
     TCPServer(int port) throws IOException{
         serverSocket = new ServerSocket(port);
         socket = serverSocket.accept();
+        
+        h.ps("Connected");
+        
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         writer = new DataOutputStream(socket.getOutputStream());
     }

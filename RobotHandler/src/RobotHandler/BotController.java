@@ -12,52 +12,64 @@ import java.io.IOException;
  * @author Rollie
  */
 public class BotController {
-    private final int runTime = 25;//seconds
-    //private final String ip = "";
-    private boolean bot;
-    Balancer balancer;
-    TriBot tribot;
-    static ControlConnector connection;
-    static ReadMPUThread mpuT = new ReadMPUThread();
+    private final int runTime = 120;//secondsS
+    private final boolean BALANCER;
+    private final boolean customControl = false;
+    private static ControlConnector connection;
+    private static ReadMPUThread mpuT;
+    public static PIDTuner pidT;
+    public static StepperThread steppersT;
+    boolean warning;
+    boolean waitForConnection = true;
+    long startTime;
+    long time;
+    Robot robot;
     
-    BotController(boolean bot) throws IOException{
-        if(bot){
-            balancer = new Balancer();
-        }
-        else {
-            tribot = new TriBot();
-            connection = new ControlConnector();
-        }
+    BotController(boolean balancer) throws IOException{
+        robot = new Robot();
+        mpuT = new ReadMPUThread();
+        steppersT = new StepperThread();
+        pidT = new PIDTuner();
         
-        this.bot = bot;
+        h.ps("Waiting for connection...");
+        
+        connection = new ControlConnector(waitForConnection);
+        
+        this.BALANCER = balancer;
     }
     
     public void start() throws IOException, InterruptedException{
+        startTime = System.currentTimeMillis(); //fetch starting time
+        warning = false;
         mpuT.start();
-        long startTime = System.currentTimeMillis(); //fetch starting time
-        boolean warning = false;
-        long endTime = 0;
+        steppersT.start();
+        pidT.start();
+        connection.start();
         
-        h.ps("Waiting for Connection");
+        robot.turnOnMotors();
+        robot.setBalancer(BALANCER);
         
         while((System.currentTimeMillis() - startTime) < 1000 * runTime)
         {
-            
-            if(bot){
-                balancer.turnOnMotors();
-                balancer.balance();
-                //balancer.rotationControl.steppers.setDrivingMode(1);
-                //balancer.rotationControl.stepForward(10, 250000);
+            if(customControl){
+                robot.control();
             }
             else{
-                boolean[] vals = connection.readControls();
+                try{
+                    boolean[] vals = connection.readControls();
+
+                    robot.setUp(vals[0]);
+                    robot.setDown(vals[1]);
+                    robot.setLeft(vals[3]);
+                    robot.setRight(vals[2]);
+
+                    robot.checkControl();
+                }
+                catch(Exception ex){}
                 
-                tribot.setUp(vals[0]);
-                tribot.setDown(vals[1]);
-                tribot.setLeft(vals[3]);
-                tribot.setRight(vals[2]);
-                
-                tribot.checkControl();
+                if(BALANCER){
+                    robot.balance();
+                }
             }
             
             if (!warning && (System.currentTimeMillis() - startTime) > (1000 * runTime) - 5000){
@@ -66,56 +78,5 @@ public class BotController {
                 warning = true;
             }
         }
-        
-        endTime = System.currentTimeMillis();
-        
-        long time = endTime - startTime;
-        
-        h.ps("Max steps per ms: " + time);
     }
 }
-
-/*
-try {
-    KeyboardHandler.setTerminalToCBreak();
-
-    if (System.in.available() != 0) {
-        //System.in.skip(System.in.available());
-
-        //clears extra keys
-        int temp = 0;
-        while (System.in.available() != 0) {
-            temp = System.in.read();
-        }
-        if (temp == 119) {
-            tribot.setUp(true);
-        }
-        if (temp == 115) {
-            tribot.setDown(true);
-        }
-        if (temp == 97) {
-            tribot.setLeft(true);
-        }
-        if (temp == 100) {
-            tribot.setRight(true);
-        }
-    }
-    else{
-        tribot.setUp(false);
-        tribot.setDown(false);
-        tribot.setLeft(false);
-        tribot.setRight(false);
-    }
-}
-catch (Exception e) {
-    System.err.println("IOException: " + e.getMessage());
-}
-finally {
-    try {
-        KeyboardHandler.stty( KeyboardHandler.returnTTY().trim() );
-    }
-    catch (Exception e) {
-        System.err.println("Exception restoring tty config");
-    }
-}
-*/

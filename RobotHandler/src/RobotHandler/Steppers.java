@@ -5,19 +5,15 @@
  */
 package RobotHandler;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  *
  * @author Rollie
  */
-import com.pi4j.io.gpio.GpioController;
-import com.pi4j.io.gpio.GpioFactory;
-import com.pi4j.io.gpio.GpioPinDigitalOutput;
-import com.pi4j.io.gpio.Pin;
-import com.pi4j.io.gpio.PinState;
-import java.util.concurrent.TimeUnit;
-//import com.pi4j.io.gpio.RaspiPin;
-
-public class Steppers {
+public final class Steppers {
+    Pins pins = new Pins(true);
+    
     public static final int FORWARD = 0;
     public static final int BACKWARD = 1;
     public static final int FULL_STEP = 0;
@@ -28,106 +24,184 @@ public class Steppers {
     
     public int mDrivingMode;
     
-    final GpioController gpio;
-    
-    final GpioPinDigitalOutput mStepPin1;
-    final GpioPinDigitalOutput mDirPin1;
-    final GpioPinDigitalOutput mSleepPin1;
-    final GpioPinDigitalOutput mEnablePin1;
-    final GpioPinDigitalOutput mMs1Pin1;
-    final GpioPinDigitalOutput mMs2Pin1;
-    final GpioPinDigitalOutput mMs3Pin1;
-    final GpioPinDigitalOutput mResetPin1;
+    final int mDirPin1;
+    final int mStepPin1;
+    final int mSleepPin1;
+    final int mResetPin1;
+    final int mMs3Pin1;
+    final int mMs2Pin1;
+    final int mMs1Pin1;
+    final int mEnablePin1;
    
-    final GpioPinDigitalOutput mStepPin2;
-    final GpioPinDigitalOutput mDirPin2;
-    final GpioPinDigitalOutput mSleepPin2;
-    final GpioPinDigitalOutput mEnablePin2;
-    final GpioPinDigitalOutput mMs1Pin2;
-    final GpioPinDigitalOutput mMs2Pin2;
-    final GpioPinDigitalOutput mMs3Pin2;
-    final GpioPinDigitalOutput mResetPin2;
+    final int mDirPin2;
+    final int mStepPin2;
+    final int mSleepPin2;
+    final int mResetPin2;
+    final int mMs3Pin2;
+    final int mMs2Pin2;
+    final int mMs1Pin2;
+    final int mEnablePin2;
     
-    public Steppers(int drivingMode, 
-            Pin dirPin1, Pin stepPin1, Pin sleepPin1, Pin resetPin1,
-            Pin ms3Pin1, Pin ms2Pin1, Pin ms1Pin1, Pin enablePin1,
-            Pin dirPin2, Pin stepPin2, Pin sleepPin2, Pin resetPin2,
-            Pin ms3Pin2, Pin ms2Pin2, Pin ms1Pin2, Pin enablePin2) {
+    public Steppers(int drivingMode,
+            int dirPin1, int stepPin1, int sleepPin1, int resetPin1,
+            int ms3Pin1, int ms2Pin1, int ms1Pin1, int enablePin1,
+            int dirPin2, int stepPin2, int sleepPin2, int resetPin2,
+            int ms3Pin2, int ms2Pin2, int ms1Pin2, int enablePin2) {
         
         mDrivingMode = drivingMode;
         
-        gpio = GpioFactory.getInstance();
-        
-        mStepPin1 = gpio.provisionDigitalOutputPin(stepPin1, "Step Pin1", PinState.LOW);
-        mDirPin1 = gpio.provisionDigitalOutputPin(dirPin1, "Direction Pin1", PinState.LOW);
-        mSleepPin1 = gpio.provisionDigitalOutputPin(sleepPin1, "Sleep Pin1", PinState.HIGH);
-        mEnablePin1 = gpio.provisionDigitalOutputPin(enablePin1, "Enable Pin1", PinState.LOW);
-        mMs1Pin1 = gpio.provisionDigitalOutputPin(ms1Pin1, "MS1 Pin1", PinState.HIGH);
-        mMs2Pin1 = gpio.provisionDigitalOutputPin(ms2Pin1, "MS2 Pin1", PinState.HIGH);
-        mMs3Pin1 = gpio.provisionDigitalOutputPin(ms3Pin1, "MS3 Pin1", PinState.HIGH);
-        mResetPin1 = gpio.provisionDigitalOutputPin(resetPin1, "Reset Pin1", PinState.HIGH);
-        
-        mStepPin2 = gpio.provisionDigitalOutputPin(stepPin2, "Step Pin2", PinState.LOW);
-        mDirPin2 = gpio.provisionDigitalOutputPin(dirPin2, "Direction Pin2", PinState.LOW);
-        mSleepPin2 = gpio.provisionDigitalOutputPin(sleepPin2, "Sleep Pin2", PinState.HIGH);
-        mEnablePin2 = gpio.provisionDigitalOutputPin(enablePin2, "Enable Pin2", PinState.LOW);
-        mMs1Pin2 = gpio.provisionDigitalOutputPin(ms1Pin2, "MS1 Pin2", PinState.HIGH);
-        mMs2Pin2 = gpio.provisionDigitalOutputPin(ms2Pin2, "MS2 Pin2", PinState.HIGH);
-        mMs3Pin2 = gpio.provisionDigitalOutputPin(ms3Pin2, "MS3 Pin2", PinState.HIGH);
-        mResetPin2 = gpio.provisionDigitalOutputPin(resetPin2, "Reset Pin2", PinState.HIGH);
+        this.mDirPin1 = dirPin1;
+        this.mStepPin1 = stepPin1;
+        this.mSleepPin1 = sleepPin1;
+        this.mResetPin1 = resetPin1;
+        this.mMs3Pin1 = ms3Pin1;
+        this.mMs2Pin1 = ms2Pin1;
+        this.mMs1Pin1 = ms1Pin1;
+        this.mEnablePin1 = enablePin1;
 
+        this.mDirPin2 = dirPin2;
+        this.mStepPin2 = stepPin2;
+        this.mSleepPin2 = sleepPin2;
+        this.mResetPin2 = resetPin2;
+        this.mMs3Pin2 = ms3Pin2;
+        this.mMs2Pin2 = ms2Pin2;
+        this.mMs1Pin2 = ms1Pin2;
+        this.mEnablePin2 = enablePin2;
+        
+        /*
+        for(int i = 0; i < 1000; i++){
+            pins.pins[mDirPin1].setHigh();
+            pins.pins[mStepPin1].setHigh();
+            pins.pins[mSleepPin1].setHigh();
+            pins.pins[mResetPin1].setHigh();
+            pins.pins[mMs3Pin1].setHigh();
+            pins.pins[mMs2Pin1].setHigh();
+            pins.pins[mMs1Pin1].setHigh();
+            pins.pins[mEnablePin1].setHigh();
+
+            pins.pins[mDirPin2].setHigh();
+            pins.pins[mStepPin2].setHigh();
+            pins.pins[mSleepPin2].setHigh();
+            pins.pins[mResetPin2].setHigh();
+            pins.pins[mMs3Pin2].setHigh();
+            pins.pins[mMs2Pin2].setHigh();
+            pins.pins[mMs1Pin2].setHigh();
+            pins.pins[mEnablePin2].setHigh();
+            
+            try{
+                Thread.sleep(100);
+            }
+            catch(Exception ex){}
+            
+            pins.pins[mDirPin1].setLow();
+            pins.pins[mStepPin1].setLow();
+            pins.pins[mSleepPin1].setLow();
+            pins.pins[mResetPin1].setLow();
+            pins.pins[mMs3Pin1].setLow();
+            pins.pins[mMs2Pin1].setLow();
+            pins.pins[mMs1Pin1].setLow();
+            pins.pins[mEnablePin1].setLow();
+
+            pins.pins[mDirPin2].setLow();
+            pins.pins[mStepPin2].setLow();
+            pins.pins[mSleepPin2].setLow();
+            pins.pins[mResetPin2].setLow();
+            pins.pins[mMs3Pin2].setLow();
+            pins.pins[mMs2Pin2].setLow();
+            pins.pins[mMs1Pin2].setLow();
+            pins.pins[mEnablePin2].setLow();
+            
+            try{
+                Thread.sleep(100);
+            }
+            catch(Exception ex){}
+        }
+        */
+        
+        /*
+        for(int i = 0; i < 1000; i++){
+            for(int j = 0; j < 26; j++){
+                if(j == 12 || j == 13){
+                    
+                }
+                else{
+                    pins.pins[j].setHigh();
+                }
+            }
+            
+            try{
+                Thread.sleep(100);
+            }
+            catch(Exception ex){}
+            
+            for(int j = 0; j <26; j++){
+                if(j == 12 || j == 13){
+                    
+                }
+                else{
+                    pins.pins[j].setLow();
+                }
+            }
+            
+            try{
+                Thread.sleep(100);
+            }
+            catch(Exception ex){}
+        }
+        */
+        
+        pins.pins[mDirPin1].setLow();
+        pins.pins[mStepPin1].setLow();
+        pins.pins[mSleepPin1].setHigh();
+        pins.pins[mResetPin1].setHigh();
+        pins.pins[mMs3Pin1].setHigh();
+        pins.pins[mMs2Pin1].setHigh();
+        pins.pins[mMs1Pin1].setHigh();
+        pins.pins[mEnablePin1].setHigh();
+        
+        pins.pins[mDirPin2].setLow();
+        pins.pins[mStepPin2].setLow();
+        pins.pins[mSleepPin2].setHigh();
+        pins.pins[mResetPin2].setHigh();
+        pins.pins[mMs3Pin2].setHigh();
+        pins.pins[mMs2Pin2].setHigh();
+        pins.pins[mMs1Pin2].setHigh();
+        pins.pins[mEnablePin2].setHigh();
+        
         setDrivingModeRight(drivingMode);
         setDrivingModeLeft(drivingMode);
-        
-        mStepPin1.setShutdownOptions(true, PinState.LOW);
-        mDirPin1.setShutdownOptions(true, PinState.LOW);
-        mSleepPin1.setShutdownOptions(true, PinState.HIGH);
-        mEnablePin1.setShutdownOptions(true, PinState.LOW);
-        mMs1Pin1.setShutdownOptions(true, PinState.HIGH);
-        mMs2Pin1.setShutdownOptions(true, PinState.HIGH);
-        mMs3Pin1.setShutdownOptions(true, PinState.HIGH);
-        mResetPin1.setShutdownOptions(true, PinState.HIGH);
-
-        mStepPin2.setShutdownOptions(true, PinState.LOW);
-        mDirPin2.setShutdownOptions(true, PinState.LOW);
-        mSleepPin2.setShutdownOptions(true, PinState.HIGH);
-        mEnablePin2.setShutdownOptions(true, PinState.LOW);
-        mMs1Pin2.setShutdownOptions(true, PinState.HIGH);
-        mMs2Pin2.setShutdownOptions(true, PinState.HIGH);
-        mMs3Pin2.setShutdownOptions(true, PinState.HIGH);
-        mResetPin2.setShutdownOptions(true, PinState.HIGH);
     }
     
     public void setDrivingModeLeft(int drivingMode) {
         switch (drivingMode) {
             case FULL_STEP: {
-                mMs1Pin1.low();
-                mMs2Pin1.low();
-                mMs3Pin1.low();
+                pins.pins[mMs1Pin1].setLow();
+                pins.pins[mMs2Pin1].setLow();
+                pins.pins[mMs3Pin1].setLow();
                 break;
             }
             case HALF_STEP: {
-                mMs1Pin1.high();
-                mMs2Pin1.low();
-                mMs3Pin1.low();
+                pins.pins[mMs1Pin1].setHigh();
+                pins.pins[mMs2Pin1].setLow();
+                pins.pins[mMs3Pin1].setLow();
                 break;
             }
             case ONE_FOURTH_STEP: {
-                mMs1Pin1.low();
-                mMs2Pin1.high();
-                mMs3Pin1.low();
+                pins.pins[mMs1Pin1].setLow();
+                pins.pins[mMs2Pin1].setHigh();
+                pins.pins[mMs3Pin1].setLow();
                 break;
             }
             case ONE_EIGHTH_STEP: {
-                mMs1Pin1.high();
-                mMs2Pin1.high();
-                mMs3Pin1.low();
+                pins.pins[mMs1Pin1].setHigh();
+                pins.pins[mMs2Pin1].setHigh();
+                pins.pins[mMs3Pin1].setLow();
                 break;
             }
             case ONE_SIXTEENTH_STEP: {
-                mMs1Pin1.high();
-                mMs2Pin1.high();
-                mMs3Pin1.high();
+                pins.pins[mMs1Pin1].setHigh();
+                pins.pins[mMs2Pin1].setHigh();
+                pins.pins[mMs3Pin1].setHigh();
                 break;
             }
         }
@@ -136,33 +210,33 @@ public class Steppers {
     public void setDrivingModeRight(int drivingMode) {
         switch (drivingMode) {
             case FULL_STEP: {
-                mMs1Pin2.low();
-                mMs2Pin2.low();
-                mMs3Pin2.low();
+                pins.pins[mMs1Pin2].setLow();
+                pins.pins[mMs2Pin2].setLow();
+                pins.pins[mMs3Pin2].setLow();
                 break;
             }
             case HALF_STEP: {
-                mMs1Pin2.high();
-                mMs2Pin2.low();
-                mMs3Pin2.low();
+                pins.pins[mMs1Pin2].setHigh();
+                pins.pins[mMs2Pin2].setLow();
+                pins.pins[mMs3Pin2].setLow();
                 break;
             }
             case ONE_FOURTH_STEP: {
-                mMs1Pin2.low();
-                mMs2Pin2.high();
-                mMs3Pin2.low();
+                pins.pins[mMs1Pin2].setLow();
+                pins.pins[mMs2Pin2].setHigh();
+                pins.pins[mMs3Pin2].setLow();
                 break;
             }
             case ONE_EIGHTH_STEP: {
-                mMs1Pin2.high();
-                mMs2Pin2.high();
-                mMs3Pin2.low();
+                pins.pins[mMs1Pin2].setHigh();
+                pins.pins[mMs2Pin2].setHigh();
+                pins.pins[mMs3Pin2].setLow();
                 break;
             }
             case ONE_SIXTEENTH_STEP: {
-                mMs1Pin2.high();
-                mMs2Pin2.high();
-                mMs3Pin2.high();
+                pins.pins[mMs1Pin2].setHigh();
+                pins.pins[mMs2Pin2].setHigh();
+                pins.pins[mMs3Pin2].setHigh();
                 break;
             }
         }
@@ -176,154 +250,151 @@ public class Steppers {
         rotate(degrees, interval, mDrivingMode);
     }
 
-    public void move(int distance, float interval, int drivingMode, float leftRatio, float rightRatio) throws InterruptedException {
-        int leftSteps = (int) (distance * leftRatio);
-        int rightSteps = (int) (distance * rightRatio);
+    public void move(int distance, int interval, int drivingMode, float leftRatio, float rightRatio) throws InterruptedException {
+        if(distance < 0){
+            setDirection(FORWARD);
+        }
+        else{
+            setDirection(BACKWARD);
+        }
+        
+        distance *= 2;
+        
+        int leftSteps = (int) ((float)distance * leftRatio);
+        int rightSteps = (int) ((float)distance * rightRatio);
         float leftIncrementVal = 0;
         float rightIncrementVal = 0;
         
+        leftIncrementVal = (float)Math.abs((float)distance / (float)leftSteps);
+        rightIncrementVal = (float)Math.abs((float)distance / (float)rightSteps);
+        
+        /*
         if (leftSteps == 0){
-            leftIncrementVal = 0;
+            leftIncrementVal = 8;
         }
         else if(leftSteps > 0){
-            leftIncrementVal = distance / leftSteps;
         }
         if (rightSteps == 0){
-            rightIncrementVal = 0;
+            rightIncrementVal = 8;
         }
         else if (rightSteps > 0){
-            rightIncrementVal = distance / rightSteps;
         }
-        
-        float leftIncrementOn = 0;
-        float rightIncrementOn = 0;
-        float leftIncrementOff = 0;
-        float rightIncrementOff = 0;
-        
-        if (drivingMode != mDrivingMode) {
-            setDrivingModeRight(drivingMode);
-            setDrivingModeLeft(drivingMode);
-        }
+        */
 
-        if (distance < 0) {
-            setDirection(BACKWARD);
-        }
-        else {
-            setDirection(FORWARD);
-        }
+        float leftIncrementOn = 0.0f;
+        float rightIncrementOn = 0.0f;
+        float leftIncrementOff = 0.0f;
+        float rightIncrementOff = 0.0f;
         
-        //h.ps(distance);
-        //TimeUnit.MICROSECONDS.sleep((long) (1 / (Math.abs(currentAngle)) * 50000));
-
-        //h.ps("h:" + leftIncrementVal + " " + rightIncrementVal);
-        
-        if(rightRatio < 1.0){
-            setDrivingModeRight(1);
-        }
-        
-        if(leftRatio < 1.0){
-            setDrivingModeLeft(1);
-        }
+        //h.ps(leftIncrementVal + " " + rightIncrementVal);
+        //h.ps(leftSteps + " " + rightSteps);
         
         for (int i = 0; i < Math.abs(distance); i++) {
-            /*
             if(leftIncrementOn <= i){
-                mStepPin1.high();
+                stepOnL();
                 leftIncrementOn += leftIncrementVal;
+                //h.ps("L");
             }
             if(rightIncrementOn <= i){
-                mStepPin2.high();
+                stepOnR();
                 rightIncrementOn += rightIncrementVal;
+                //h.ps("R");
             }
             
-            //Thread.sleep(interval);
-            TimeUnit.NANOSECONDS.sleep((long)(interval));
+            delay(interval);
             
             if(leftIncrementOff <= i){
-                mStepPin1.low();
+                stepOffL();
                 leftIncrementOff += leftIncrementVal;
             }
             if(rightIncrementOff <= i){
-                mStepPin2.low();
+                stepOffR();
                 rightIncrementOff += rightIncrementVal;
             }
-`           */
             
-            mStepPin1.high();
-            mStepPin2.high();
-            
-            TimeUnit.NANOSECONDS.sleep((long)(interval));
-            
-            mStepPin1.low();
-            mStepPin2.low();
-            
-            TimeUnit.NANOSECONDS.sleep((long)(interval));
-            
-            //h.ps(leftIncrementOn + " " + rightIncrementOn + " " + i);
-            //h.ps("LI:" + leftRatio + " RI:" + rightRatio + " S:" + distance + " L:" + leftIncrementOn + " R:"  + rightIncrementOn);
-            
+            delay(interval);
         }
+    }
+    
+    public void delay(int interval){
+        long startTime = System.nanoTime();
         
-        setDrivingModeRight(0);
-        setDrivingModeLeft(0);
+        while((System.nanoTime() - startTime) < interval){}
+    }
+    
+    private void stepOnL(){
+        pins.pins[mStepPin1].setHigh();
+    }
+    
+    private void stepOnR(){
+        pins.pins[mStepPin2].setHigh();
+    }
+    
+    private void stepOffL(){
+        pins.pins[mStepPin1].setLow();
+    }
+    
+    private void stepOffR(){
+        pins.pins[mStepPin2].setLow();
     }
 
-    public void move(int steps, float interval, float leftRatio, float rightRatio) throws InterruptedException {
+    public void move(int steps, int interval, float leftRatio, float rightRatio) throws InterruptedException {
         move(steps, interval, mDrivingMode, leftRatio, rightRatio);
     }
 
     public void sleep() {
-        mSleepPin1.low();
-        mSleepPin2.low();
+        pins.pins[mSleepPin1].setLow();
+        pins.pins[mSleepPin2].setLow();
     }
 
     public void wake() {
-        mSleepPin1.high();
-        mSleepPin2.high();
+        pins.pins[mSleepPin1].setHigh();
+        pins.pins[mSleepPin2].setHigh();
     }
 
     public void reset() {
-        mResetPin1.low();
-        mResetPin2.low();
+        pins.pins[mResetPin1].setLow();
+        pins.pins[mResetPin2].setLow();
     }
 
     public void enable() {
-        mEnablePin1.low();
-        mEnablePin2.low();
+        pins.pins[mEnablePin1].setLow();
+        pins.pins[mEnablePin2].setLow();
     }
 
     public void disable() {
-        mEnablePin1.high();
-        mEnablePin2.high();
+        pins.pins[mEnablePin1].setHigh();
+        pins.pins[mEnablePin2].setHigh();
     }
 
     public void shutdown() {
-        gpio.unprovisionPin(mStepPin1);
-        gpio.unprovisionPin(mDirPin1);
-        gpio.unprovisionPin(mSleepPin1);
-        gpio.unprovisionPin(mEnablePin1);
-        gpio.unprovisionPin(mMs1Pin1);
-        gpio.unprovisionPin(mMs2Pin1);
-        gpio.unprovisionPin(mResetPin1);
+        pins.pins[mDirPin1].setLow();
+        pins.pins[mStepPin1].setLow();
+        pins.pins[mSleepPin1].setHigh();
+        pins.pins[mResetPin1].setLow();
+        pins.pins[mMs3Pin1].setHigh();
+        pins.pins[mMs2Pin1].setHigh();
+        pins.pins[mMs1Pin1].setHigh();
+        pins.pins[mEnablePin1].setHigh();
         
-        gpio.unprovisionPin(mStepPin2);
-        gpio.unprovisionPin(mDirPin2);
-        gpio.unprovisionPin(mSleepPin2);
-        gpio.unprovisionPin(mEnablePin2);
-        gpio.unprovisionPin(mMs1Pin2);
-        gpio.unprovisionPin(mMs2Pin2);
-        gpio.unprovisionPin(mResetPin2);
-        
-        gpio.shutdown();
+        pins.pins[mDirPin2].setLow();
+        pins.pins[mStepPin2].setLow();
+        pins.pins[mSleepPin2].setHigh();
+        pins.pins[mResetPin2].setLow();
+        pins.pins[mMs3Pin2].setHigh();
+        pins.pins[mMs2Pin2].setHigh();
+        pins.pins[mMs1Pin2].setHigh();
+        pins.pins[mEnablePin2].setHigh();
     }
 
     public void setDirection(int direction) {
         if (direction == FORWARD) {
-            mDirPin1.high();
-            mDirPin2.high();
-        } else if (direction == BACKWARD) {
-            mDirPin1.low();
-            mDirPin2.low();
+            pins.pins[mDirPin1].setHigh();
+            pins.pins[mDirPin2].setHigh();
+        }
+        else if (direction == BACKWARD) {
+            pins.pins[mDirPin1].setLow();
+            pins.pins[mDirPin2].setLow();
         }
     }
 

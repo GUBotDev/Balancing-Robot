@@ -9,8 +9,8 @@ import java.io.IOException;
 
 
 public class RobotHandler {
-    private static final boolean tribot = false;
-    private static final boolean balancer = true;
+    private static final boolean BALANCER = true;
+    static BotController botControl;
     
     /**
      * @param args
@@ -20,27 +20,27 @@ public class RobotHandler {
     public static void main(String[] args) throws InterruptedException, IOException {
         h.ps("Start");
         
-        if(tribot){
-            BotController botControl = new BotController(false);
+        if(!BALANCER){
+            botControl = new BotController(false);
             
             h.ps("Pick up");
 
             Thread.sleep(2000);
             botControl.start();
             Thread.sleep(250);
-            botControl.tribot.rotationControl.shutdown();
+            StepperThread.shutdown();
             h.ps("done");
         }
-        else if (balancer){
+        else {
             Mpu6050Controller.initialize();
-            BotController botControl = new BotController(true);
+            botControl = new BotController(true);
 
             h.ps("Pick up");
 
             Thread.sleep(2000);
             botControl.start();
             Thread.sleep(250);
-            botControl.balancer.rotationControl.shutdown();
+            StepperThread.shutdown();
             h.ps("done");
         }
     }

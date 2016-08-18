@@ -11,19 +11,50 @@ import java.io.IOException;
  *
  * @author Rollie
  */
-public class ControlConnector {
-    final TCPServer controller;
+public class ControlConnector implements Runnable{
+    TCPServer controller;
     final int port = 6789;
+    boolean up = false, down = false, left = false, right = false;
+    static Thread t;
+    String readLine = "";
+    boolean tcpStart = false;
+    boolean wait = true;
     
-    ControlConnector() throws IOException{
-        controller = new TCPServer(port);
+    ControlConnector(boolean wait) throws IOException{
+        if(wait){
+            controller = new TCPServer(port);
+            
+            //tcpStart = true;
+        }
+    }
+    
+    @Override
+    public void run() {
+        while(true){
+            try {
+                if(!tcpStart){
+                    if(controller == null){
+                        controller = new TCPServer(port);
+                    }
+                    
+                    tcpStart = true;
+                }
+                
+                readLine = controller.readFromClient();
+            }
+            catch(Exception ex){}
+        }
+    }
+    
+    public void start(){
+        if(t == null){
+            t = new Thread(this, "Connector");
+            t.start();
+        }
     }
     
     public boolean[] readControls() throws IOException{
-        boolean up = false, down = false, left = false, right = false;
         //requestControls();
-        
-        String readLine = controller.readFromClient();
         
         String[] split = readLine.split(",");
         

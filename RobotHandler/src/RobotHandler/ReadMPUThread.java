@@ -6,37 +6,82 @@
 package RobotHandler;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Rollie
  */
 public class ReadMPUThread implements Runnable{
+    private final boolean complementaryFilter = true;
+    private final boolean kalmanFilterAngle = true;
+    private final boolean kalmanFilterAccel = false;
+    private final boolean kalmanFilterGyro = false;
+    private final boolean printAngleInfo = false;
+    
+    private static volatile float angle = 0.0f;
+    
+    private final float kalmanGainAccel = 0.5f;//
+    private final float kalmanGainAngle = 0.05f;//0.15f
+    private final float kalmanGainGyro = 0.5f;//
     private final float errorOffset = 2.0f;//1.9875f;//corrects bias in gyro direction - 1.9875f -> specific to sensor
+    private final int averageAmount = 2;
     private float gyroX = 0.0f;
     private float accelX = 0.0f;
-    private static volatile float angle = 0.0f;
     private float previousAngle = 0.0f;
+    private float previousAccelX = 0.0f;
+    private float previousGyroX = 0.0f;
+    private final float complementaryRatio = 0.9f;//0.25 -> Gyro*0.25, Accel*0.75
     static Thread t;
-    private String name;
     
     @Override
     public void run() {
         while(true){
             try {
-                accelX = (readXAccelerometer() + readXAccelerometer() + readXAccelerometer() + readXAccelerometer() + readXAccelerometer())/ 5;
-                gyroX = (readXGyroscope() + readXGyroscope() + readXGyroscope() + readXGyroscope() + readXGyroscope()) / 5;
+                for(int i = 0; i < averageAmount; i++){
+                    accelX += readXAccelerometer();
+                    gyroX += readXGyroscope();
+                }
                 
-                angle = ((0.75f * (angle + gyroX) + (0.25f) * accelX));//complementary filter
+                accelX /= averageAmount;
+                gyroX /= averageAmount;
                 
-                angle = 0.375f * angle + (1 - 0.375f) * previousAngle;//kalman filter
+                //Accelerometer Kalman Filter
+                if(kalmanFilterAccel){
+                    accelX = kalmanGainAccel * accelX + (1 - kalmanGainAccel) * previousAccelX;//kalman filter for accel
+                }
+                
+                //Gyroscope Kalman Filter
+                if(kalmanFilterGyro){
+                    gyroX = kalmanGainGyro * gyroX + (1 - kalmanGainAccel) * previousGyroX;//kalman filter for accel
+                }
+                
+                //ComplementaryFilter
+                if(complementaryFilter){
+                    angle = ((complementaryRatio * (angle + gyroX) + (1.0f - complementaryRatio) * accelX));//complementary filter
+                }
+                else{
+                    angle = accelX;
+                }
+                
+                //Angle Kalman Filter
+                if(kalmanFilterAngle){
+                    angle = kalmanGainAngle * angle + (1 - kalmanGainAngle) * previousAngle;//kalman filter
+                }
+                
+                if(printAngleInfo){
+                     h.ps("Angle:" + angle + " AccelX:" + accelX + " GyroX:" + gyroX);
+                }
+                
+                //h.ps(angle);
+                
                 previousAngle = angle;
+                previousGyroX = gyroX;
+                previousAccelX = accelX;
+                accelX = 0;
+                gyroX = 0;
             } catch (IOException ex) {
                 
             }
-        
         }
     }
     
@@ -70,6 +115,10 @@ public class ReadMPUThread implements Runnable{
         }
         
         value += errorOffset;
+            
+        if(Math.abs(value) < 3.0f){
+            value = 0;   
+        }
         
         return value;
     }
