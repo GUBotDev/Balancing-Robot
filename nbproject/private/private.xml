@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/ComplementaryFilter.java</file>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/I2C.java</file>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/A4988.java</file>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/Server.java</file>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/Pin.java</file>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/Configuration.java</file>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/MPU6050.java</file>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/PID.java</file>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/Filter.java</file>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/UDPServer.java</file>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/MPU6050Registers.java</file>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/TCPServer.java</file>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/KalmanFilter.java</file>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/BalancingRobot.java</file>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/StepperDriver.java</file>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/MPU6050RegisterValues.java</file>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/Pins.java</file>
+            <file>file:/C:/Users/steve/Documents/NetBeansProjects/BalancingRobot/src/balancingrobot/Vector.java</file>
+        </group>
+    </open-files>
+</project-private>
