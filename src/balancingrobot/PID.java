@@ -15,14 +15,14 @@ public class PID {
     private final double i;
     private final double d;
     private double offset = 0;
+    private double previousOffset;
     private double maxIterationError;
     private double maxTotalError;
     private double offsetOld;
     private double offsetNew;
-    private double errorSum;
     private double time;
     private double output;
-    private double previousTarget;
+    private double integral;
     
     PID(double p, double i, double d, double maxOutput){
         this.p = p;
@@ -37,20 +37,15 @@ public class PID {
         double currentTime = ((double)System.nanoTime()) / 1000000000;
         offset = target - actual;
         
-        errorSum += constrain(offset, -maxIterationError, maxIterationError);
-        errorSum = constrain(errorSum, -maxTotalError, maxTotalError);
+        integral += offset * ((currentTime - time) * 1000);
         
         output = p * offset;
-        output += i * errorSum * (currentTime - time);
-        output -= (d * (target - previousTarget) - d * (actual - offsetOld)) / ((currentTime - time) * 1000);
+        output += i * integral;
+        output -= (offset - previousOffset) / ((currentTime - time) * 1000);
         
-        offsetOld = offsetNew;
-        offsetNew = offset;
-        
-        previousTarget = target;
+        previousOffset = offset;
         
         time = currentTime;
-        previousTarget = target;
     }
     
     public double returnCorrectedValue(){
